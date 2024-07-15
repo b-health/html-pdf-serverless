@@ -21,3 +21,7 @@ The AWS account used to deploy must have the following policies attached:
     "iam:DetachRolePolicy",
     "ssm:GetParameter",
     "iam:DeletePolicy"
+
+## Local testing:
+To test locally, assure to have Docker use the default socket (if using docker desktop, activate it in advanced settings)
+Then: sam local start-api -t ./cdk.out/HtmlPdfServerlessStack.template.json 
