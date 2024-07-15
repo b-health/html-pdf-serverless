@@ -1,9 +1,23 @@
 # HTML to PDF Serverless
 
-<p align="center">
-    <img src="./docs/html-pdf-arch.png" alt="architecture" width="1024">
-</p>
+## Requires node v18.x
 
-Deploy the necessary infrastructure in order to generate a PDF from a HTML string using AWS Serverless.
+## To deploy changes: 
+cdk deploy --profile={profile name with AWS CLI credentials}
 
-Repo generated from medium article https://medium.com/@philblenk6/html-to-pdf-using-aws-lambda-a61abcdd50d4
+## To deploy in a new account: 
+First -> cdk bootstrap --profile=bhealth-ai" 
+Then deploy
+
+## Permisions:
+The AWS account used to deploy must have the following policies attached:
+
+    "iam:CreateRole",
+    "iam:TagRole",
+    "iam:AttachRolePolicy",
+    "iam:DeleteRole",
+    "iam:PassRole",
+    "iam:PutRolePolicy",
+    "iam:DetachRolePolicy",
+    "ssm:GetParameter",
+    "iam:DeletePolicy"
