@@ -22,10 +22,10 @@
     "@aws-sdk/client-s3": "^3.433.0",
     "@aws-sdk/lib-storage": "^3.435.0",
     "@aws-sdk/s3-request-presigner": "^3.435.0",
-    "@sparticuz/chromium": "^110.0.0",
+    "@sparticuz/chromium": "^123.0.1",
     "aws-cdk-lib": "2.102.0",
     "constructs": "^10.0.0",
-    "puppeteer-core": "19.6.0",
+    "puppeteer-core": "22.6.4",
     "source-map-support": "^0.5.21"
   }
 }

@@ -2,7 +2,7 @@ import chromium from '@sparticuz/chromium'
 import puppeteer from 'puppeteer-core'
 
 export const generatePdfBuffer = async (
-  html: string,
+  base64Html: string,
 ): Promise<Buffer | undefined> => {
   let result = undefined
   let browser = null
@@ -17,6 +17,10 @@ export const generatePdfBuffer = async (
     })
     
     console.log('Browser launched')
+    // Decode the base64 HTML string
+    const html = Buffer.from(base64Html, 'base64').toString('utf-8')
+    console.log("Response: ", html)
+
     const page = await browser.newPage()
 
     await page.setContent(html, {

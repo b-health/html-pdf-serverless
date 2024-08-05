@@ -25,3 +25,9 @@ The AWS account used to deploy must have the following policies attached:
 ## Local testing:
 To test locally, assure to have Docker use the default socket (if using docker desktop, activate it in advanced settings)
 Then: sam local start-api -t ./cdk.out/HtmlPdfServerlessStack.template.json 
+
+## IMPORTANT - Lambda restriction update
+https://www.reddit.com/r/aws/comments/1c774zh/aws_puppeteer_issues/
+
+## Medium guide
+https://medium.com/@philblenk6/html-to-pdf-using-aws-lambda-a61abcdd50d4

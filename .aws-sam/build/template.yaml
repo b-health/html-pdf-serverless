@@ -1,0 +1,440 @@
+Resources:
+  PDFsS3BucketDDBBF369:
+    Type: AWS::S3::Bucket
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/PDFsS3Bucket/Resource
+  ChromeAWSLambdaLayerD7552D7A:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      CompatibleRuntimes:
+      - nodejs18.x
+      Content:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: 2151cb76ed8a2a3d20b4a810888dd0e923e6c8c0d793335cb98fdc425b9370c8.zip
+      LayerName: ChromeAWSLambdaLayer
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/ChromeAWSLambdaLayer/Resource
+      aws:asset:path: ../../cdk.out/asset.2151cb76ed8a2a3d20b4a810888dd0e923e6c8c0d793335cb98fdc425b9370c8.zip
+      aws:asset:is-bundled: false
+      aws:asset:property: Content
+  HtmlToPdfLambdaServiceRoleC5570141:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+      - Fn::Join:
+        - ''
+        - - 'arn:'
+          - Ref: AWS::Partition
+          - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfLambda/ServiceRole/Resource
+  HtmlToPdfLambdaServiceRoleDefaultPolicy84C30DE1:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+        - Action:
+          - s3:Abort*
+          - s3:DeleteObject*
+          - s3:GetBucket*
+          - s3:GetObject*
+          - s3:List*
+          - s3:PutObject
+          - s3:PutObjectLegalHold
+          - s3:PutObjectRetention
+          - s3:PutObjectTagging
+          - s3:PutObjectVersionTagging
+          Effect: Allow
+          Resource:
+          - Fn::GetAtt:
+            - PDFsS3BucketDDBBF369
+            - Arn
+          - Fn::Join:
+            - ''
+            - - Fn::GetAtt:
+                - PDFsS3BucketDDBBF369
+                - Arn
+              - /*
+        Version: '2012-10-17'
+      PolicyName: HtmlToPdfLambdaServiceRoleDefaultPolicy84C30DE1
+      Roles:
+      - Ref: HtmlToPdfLambdaServiceRoleC5570141
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfLambda/ServiceRole/DefaultPolicy/Resource
+  HtmlToPdfLambdaB7443488:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: d16e2d0bdf7e9ca32e18cc0ac08ca61ff51c93df62e1060ba7d5a629dd7f0aa0.zip
+      Environment:
+        Variables:
+          S3_PDF_BUCKET:
+            Ref: PDFsS3BucketDDBBF369
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Handler: index.handler
+      Layers:
+      - Ref: ChromeAWSLambdaLayerD7552D7A
+      MemorySize: 2048
+      Role:
+        Fn::GetAtt:
+        - HtmlToPdfLambdaServiceRoleC5570141
+        - Arn
+      Runtime: nodejs18.x
+      Timeout: 30
+    DependsOn:
+    - HtmlToPdfLambdaServiceRoleDefaultPolicy84C30DE1
+    - HtmlToPdfLambdaServiceRoleC5570141
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfLambda/Resource
+      aws:asset:path: ../../cdk.out/asset.d16e2d0bdf7e9ca32e18cc0ac08ca61ff51c93df62e1060ba7d5a629dd7f0aa0
+      aws:asset:is-bundled: true
+      aws:asset:property: Code
+  HealthcheckLambdaServiceRoleF0B775CC:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+      - Fn::Join:
+        - ''
+        - - 'arn:'
+          - Ref: AWS::Partition
+          - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HealthcheckLambda/ServiceRole/Resource
+  HealthcheckLambdaA454DE2E:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Fn::Sub: cdk-hnb659fds-assets-${AWS::AccountId}-${AWS::Region}
+        S3Key: f42b67a32dc2f50b9417500cf6b74e62a3e647861e4eebdde34d41eb4120b10e.zip
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1'
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+        - HealthcheckLambdaServiceRoleF0B775CC
+        - Arn
+      Runtime: nodejs18.x
+    DependsOn:
+    - HealthcheckLambdaServiceRoleF0B775CC
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HealthcheckLambda/Resource
+      aws:asset:path: ../../cdk.out/asset.f42b67a32dc2f50b9417500cf6b74e62a3e647861e4eebdde34d41eb4120b10e
+      aws:asset:is-bundled: true
+      aws:asset:property: Code
+  HtmlToPdfRestApi1555AF91:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: HTML PDF API
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Resource
+  HtmlToPdfRestApiDeploymentE0A447B71c20b7f4e1c5ab209de049ff63e67e01:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: Automatically created by the RestApi construct
+      RestApiId:
+        Ref: HtmlToPdfRestApi1555AF91
+    DependsOn:
+    - HtmlToPdfRestApiGETAE28CB28
+    - HtmlToPdfRestApiPOST464B8134
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Deployment/Resource
+  HtmlToPdfRestApiDeploymentStageprod4EA5374B:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: HtmlToPdfRestApiDeploymentE0A447B71c20b7f4e1c5ab209de049ff63e67e01
+      RestApiId:
+        Ref: HtmlToPdfRestApi1555AF91
+      StageName: prod
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/DeploymentStage.prod/Resource
+  HtmlToPdfRestApiGETApiPermissionHtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6GET941B210D:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - HealthcheckLambdaA454DE2E
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ''
+        - - 'arn:'
+          - Ref: AWS::Partition
+          - ':execute-api:'
+          - Ref: AWS::Region
+          - ':'
+          - Ref: AWS::AccountId
+          - ':'
+          - Ref: HtmlToPdfRestApi1555AF91
+          - /
+          - Ref: HtmlToPdfRestApiDeploymentStageprod4EA5374B
+          - /GET/
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Default/GET/ApiPermission.HtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6.GET..
+  HtmlToPdfRestApiGETApiPermissionTestHtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6GET90773211:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - HealthcheckLambdaA454DE2E
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ''
+        - - 'arn:'
+          - Ref: AWS::Partition
+          - ':execute-api:'
+          - Ref: AWS::Region
+          - ':'
+          - Ref: AWS::AccountId
+          - ':'
+          - Ref: HtmlToPdfRestApi1555AF91
+          - /test-invoke-stage/GET/
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Default/GET/ApiPermission.Test.HtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6.GET..
+  HtmlToPdfRestApiGETAE28CB28:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        RequestTemplates:
+          application/json: '{ "statusCode": "200" }'
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+          - ''
+          - - 'arn:'
+            - Ref: AWS::Partition
+            - ':apigateway:'
+            - Ref: AWS::Region
+            - :lambda:path/2015-03-31/functions/
+            - Fn::GetAtt:
+              - HealthcheckLambdaA454DE2E
+              - Arn
+            - /invocations
+      ResourceId:
+        Fn::GetAtt:
+        - HtmlToPdfRestApi1555AF91
+        - RootResourceId
+      RestApiId:
+        Ref: HtmlToPdfRestApi1555AF91
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Default/GET/Resource
+  HtmlToPdfRestApiPOSTApiPermissionHtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6POST7FB32CE1:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - HtmlToPdfLambdaB7443488
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ''
+        - - 'arn:'
+          - Ref: AWS::Partition
+          - ':execute-api:'
+          - Ref: AWS::Region
+          - ':'
+          - Ref: AWS::AccountId
+          - ':'
+          - Ref: HtmlToPdfRestApi1555AF91
+          - /
+          - Ref: HtmlToPdfRestApiDeploymentStageprod4EA5374B
+          - /POST/
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Default/POST/ApiPermission.HtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6.POST..
+  HtmlToPdfRestApiPOSTApiPermissionTestHtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6POST0074FE4F:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+        - HtmlToPdfLambdaB7443488
+        - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ''
+        - - 'arn:'
+          - Ref: AWS::Partition
+          - ':execute-api:'
+          - Ref: AWS::Region
+          - ':'
+          - Ref: AWS::AccountId
+          - ':'
+          - Ref: HtmlToPdfRestApi1555AF91
+          - /test-invoke-stage/POST/
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Default/POST/ApiPermission.Test.HtmlPdfServerlessStackHtmlToPdfRestApiA49A14E6.POST..
+  HtmlToPdfRestApiPOST464B8134:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        RequestTemplates:
+          application/json: '{ "statusCode": "200" }'
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+          - ''
+          - - 'arn:'
+            - Ref: AWS::Partition
+            - ':apigateway:'
+            - Ref: AWS::Region
+            - :lambda:path/2015-03-31/functions/
+            - Fn::GetAtt:
+              - HtmlToPdfLambdaB7443488
+              - Arn
+            - /invocations
+      ResourceId:
+        Fn::GetAtt:
+        - HtmlToPdfRestApi1555AF91
+        - RootResourceId
+      RestApiId:
+        Ref: HtmlToPdfRestApi1555AF91
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/HtmlToPdfRestApi/Default/POST/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/12PzW6DMBCEnyV3syVEfYAkVU/9iYjUK9qYbWJ+bMSuixDi3SsbhKqe5lvveOzJYJ9mkO5w4ESXddKYG0xXQV0rHLiY+ADTyeuaRJ2/7UqLnJBpVg22txJhesOR+i/q2TgbrP/nV2+1rHyhvjUcNrPiQ4HMJAzHIGteYV1JFcNHlO2uwRam3DUUUqJeXGP0GEMjzQo7c0ehAUeYcmI5dia6V3yhrnFjSzYW+jNdBe8xd4Gc2PleU2ip3kkergzLheZZxd8Gq7H3zRwcn146L+uT2+nZ2dJIbByqQcVPP1kK+2dIdxUbk/TeimkJ8kV/Ae5tIEeYAQAA
+    Metadata:
+      aws:cdk:path: HtmlPdfServerlessStack/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Outputs:
+  HtmlToPdfRestApiEndpointD6019A47:
+    Value:
+      Fn::Join:
+      - ''
+      - - https://
+        - Ref: HtmlToPdfRestApi1555AF91
+        - .execute-api.
+        - Ref: AWS::Region
+        - .
+        - Ref: AWS::URLSuffix
+        - /
+        - Ref: HtmlToPdfRestApiDeploymentStageprod4EA5374B
+        - /
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+    - Fn::Or:
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - af-south-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - ap-east-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - ap-northeast-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - ap-northeast-2
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - ap-south-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - ap-southeast-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - ap-southeast-2
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - ca-central-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - cn-north-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - cn-northwest-1
+    - Fn::Or:
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - eu-central-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - eu-north-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - eu-south-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - eu-west-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - eu-west-2
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - eu-west-3
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - me-south-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - sa-east-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - us-east-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - us-east-2
+    - Fn::Or:
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - us-west-1
+      - Fn::Equals:
+        - Ref: AWS::Region
+        - us-west-2
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically
+      retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+    - Assert:
+        Fn::Not:
+        - Fn::Contains:
+          - - '1'
+            - '2'
+            - '3'
+            - '4'
+            - '5'
+          - Ref: BootstrapVersion
+      AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap'
+        with a recent version of the CDK CLI.
