@@ -16,7 +16,7 @@ export class HtmlPdfServerlessStack extends Stack {
       compatibleRuntimes: [
         Runtime.NODEJS_18_X
       ],
-      code: Code.fromAsset('chromium-v110.0.0-layer.zip')
+      code: Code.fromAsset('chromium-v123.0.1-layer.zip')
     })
 
     const htmlToPdfLambda = new NodejsFunction(this, 'HtmlToPdfLambda', {
